@@ -27,7 +27,10 @@ class ShrinkConsultation extends Controller
        $this->caller = $caller ;
 
        //Shrink datagraph
-        $this->shinkDataGraph = new System('shrink',true);
+        $this->shinkDataGraph = new System('shrink',true,Config('database.connections.mysql.host'),
+            Config('database.connections.mysql.database'),
+                Config('database.connections.mysql.username'),
+                Config('database.connections.mysql.password'));
 
         //Datagraph
 
@@ -72,9 +75,51 @@ class ShrinkConsultation extends Controller
     public function examineCommand($command,$type=null){
 
         $sandra = $this->currentDatagraph ;
+        $pieces = explode(":", $command);
 
-        $conceptExplorer = new ConceptExplorer();
-       $data =  $conceptExplorer->loadConcept($command,$sandra,$this);
+
+        if (is_numeric($pieces[0])) {
+
+            $conceptExplorer = new ConceptExplorer();
+            $conceptExplorer->loadConcept($command, $sandra, $this);
+
+        }
+
+        else if ($pieces[0]=='env' && isset($pieces[1])){
+
+            $this->sendResponse("env","Switching env to :".$pieces[1]);
+
+            //Datagraph
+
+            //$dataGFactory = $this->shinkDataGraph->factoryManager->create('datagaphFactory','datagraph','datagraphFile');
+            //$dataGFactory->getOrCreateFromRef()
+
+            try{
+
+                $this->currentDatagraph = new System($pieces[1],false,Config('database.connections.mysql.host'),
+                    Config('database.connections.mysql.database'),
+                    Config('database.connections.mysql.username'),
+                    Config('database.connections.mysql.password'));
+
+            }catch( \Exception $e){
+
+                $this->sendResponse("error","Datagraph not found");
+
+            }
+
+
+
+
+
+
+        }
+        else {
+
+            $this->sendResponse("unknown command","unknown command");
+
+
+
+        }
 
        if ($this->keepCaptive){
            $this->backMain();

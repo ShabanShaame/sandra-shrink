@@ -19,6 +19,9 @@ class ConceptExplorer
 
         $concept = $sandra->conceptFactory->getConceptFromShortnameOrId($conceptId);
 
+        $name = $concept->getDisplayName();
+        $shrinkConsultation->sendResponse("conceptHeader","FoundConcept : $name");
+
         $refs = $concept->getReferences();
 
 
