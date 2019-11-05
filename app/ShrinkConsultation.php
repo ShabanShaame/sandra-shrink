@@ -37,7 +37,7 @@ class ShrinkConsultation extends Controller
        //$dataGFactory = $this->shinkDataGraph->factoryManager->create('datagaphFactory','datagraph','datagraphFile');
         //$dataGFactory->getOrCreateFromRef()
 
-        $this->currentDatagraph = new System('klay');
+
 
 
     }
