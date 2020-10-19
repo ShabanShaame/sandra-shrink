@@ -31,7 +31,9 @@ class CollectionController extends Controller
         return view('test.index', [
             'refMap'    => $columns,
             'table'     => $table,
-             'urlToCall'     => "/api/collection/$db/$env/get/$table"
+             'urlToCall'     => "/api/collection/$db/$env/get/$table",
+             'db'     => "$db",
+             'env'     => "$env"
         ]);
 
 

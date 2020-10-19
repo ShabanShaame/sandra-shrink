@@ -94,7 +94,7 @@ jQuery(document).ready(function($){
                 processing: true,
                 serverSide: true,
                 paging: true,
-                ajax: '/api/collection/sandra/baster/get/' + table,
+                ajax: '/api/collection/'+db+'/'+env+'/get/' + table,
                 columns: columnsArray,
             })
         }
