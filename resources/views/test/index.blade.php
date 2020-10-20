@@ -8,27 +8,6 @@
         <span class="sr-only"></span>
     </div>
 
-    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-    </ul>
-
-    <div class="tab-content" id="pills-tabContent">
-    </div>
-
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
-    <script>
-        const urlToCall = "<?php  print_r($urlToCall) ?>";
-    </script>
-    <script type="text/javascript" src="{{ asset('js/collection/collection_display.js') }}"></script>
-
-
-    <div class="spinner-grow" role="status">
-        <span class="sr-only"></span>
-    </div>
-
-    <button id="serverSide" class="btn btn-outline-success switchTables">Table Server Side</button>
-    <button id="clientSide" class="btn btn-outline-primary switchTables">Table Client Side</button>
-
     <div class="" id="tableContainer">
         <table class="text-light dataTable table-dark" id="factoryTable">
             <thead></thead>

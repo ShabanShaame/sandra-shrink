@@ -2,49 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\UsersDataTable;
 use CsCannon\AssetCollectionFactory;
 use CsCannon\SandraManager;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use SandraCore\System;
 use Yajra\DataTables\Facades\DataTables;
 use CsCannon\AssetFactory;
-use Exception;
 use ReflectionClass;
 use SandraCore\EntityFactory;
 
 class CollectionController extends Controller
 {
 
-    public function index($db,$env,$table,SandraController $sandraController)
+    private static $sandra;
+
+    public function index($db, $env,$table,SandraController $sandraController)
     {
 
+        if($env === "null"){
+            $myEnv = '';
+        }else{
+            $myEnv = $env;
+        }
 
-        $sandra = $sandraController->routeSandra($db,$env);
+        self::$sandra = $sandraController->routeSandra($db,$myEnv);
 
-        $columns = TableViewController::getColumns($sandra,$table);
-
+        $columns = TableViewController::getColumns(self::$sandra,$table);
 
         return view('test.index', [
-            'refMap'    => $columns,
-            'table'     => $table,
-             'urlToCall'     => "/api/collection/$db/$env/get/$table",
-             'db'     => "$db",
-             'env'     => "$env"
+            'refMap'        => $columns,
+            'table'         => $table,
+             'db'           => $db,
+             'env'          => $env
         ]);
 
-
-
     }
+
 
     public function get($db,$env,$table,SandraController $sandraController)
     {
 
-        $sandra = $sandraController->routeSandra($db,$env);
-        $datas = TableViewController::get($sandra,$table);
+        if($env === 'null'){
+            $env = '';
+        }
+
+        self::$sandra = $sandraController->routeSandra($db,$env);
+        $datas = TableViewController::get(self::$sandra,$table);
 
         return DataTables::of($datas)
             ->addIndexColumn()
@@ -52,20 +56,20 @@ class CollectionController extends Controller
 
     }
 
-
-
-
-    public function testView()
+    /**
+     * @param string $db
+     * @param string $env
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @throws \ReflectionException
+     */
+    public function testView(string $db, string $env)
     {
-
         $assetFactory = new AssetFactory();
         $assetFactory->populateLocal();
 
-        return $this->viewFromObject($assetFactory);
+        return $this->viewFromObject($db, $env, $assetFactory);
 
     }
-
-
 
 
     public function htmlTableView(Request $request)
@@ -134,29 +138,6 @@ class CollectionController extends Controller
 
 
     /**
-     * From request, call Entity creation and return error if class doesn't exists
-     *
-     * @param Request $request
-     */
-    public function factoryToTableView(Request $request)
-    {
-
-        $searchedEntity = $request->input('factory');
-
-        $entityFactory = $this->createEntityAndViewTable($searchedEntity);
-
-        if(!$entityFactory){
-            return view('collection/collection_display', [
-                'error' => 'Class "'.$searchedEntity.'" not found'
-            ]);
-        }
-
-        return $this->viewFromObject($entityFactory);
-    }
-
-
-
-    /**
      * create an Entity from a string
      *
      * @param String $entity
@@ -176,7 +157,7 @@ class CollectionController extends Controller
         if(is_subclass_of($factory, 'SandraCore\EntityFactory')){
 
             if(strtolower($factory) == strtolower('CsCannon\AssetCollectionFactory')){
-                $entityFactory = new AssetCollectionFactory(SandraManager::getSandra());
+                $entityFactory = new AssetCollectionFactory(self::$sandra);
             }else{
                 $entityFactory = new $factory;
             }
@@ -192,28 +173,30 @@ class CollectionController extends Controller
             }
         }
 
-
         /** @var \SandraCore\EntityFactory $entityFactory */
 
         $entityFactory->populateLocal();
-        $entityFactory->createViewTable($entity . '_cscview');
+        $entityFactory->createViewTable($entity);
 
         return $entityFactory;
     }
 
 
-
-
     /**
      * create Table from object EntityFactory
      *
+     * @param string $db
+     * @param string $env
      * @param EntityFactory $entity
-     * @return View
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @throws \ReflectionException
      */
-    public function viewFromObject(EntityFactory $entity){
+    public function viewFromObject(string $db, string $env,EntityFactory $entity){
 
         $class = new ReflectionClass($entity);
         $className = $class->getShortName();
+
+        $columnArray = [];
 
         foreach($entity->sandraReferenceMap as $concept){
 
@@ -221,34 +204,14 @@ class CollectionController extends Controller
             $columnArray[] = $concept->getShortname();
         }
 
-        return view('collection/collection_display', [
+        return view('test.index', [
+            'env'       => $env,
+            'db'        => $db,
             'refMap'    => $columnArray,
             'table'     => $className
         ]);
     }
 
-
-
-    /**
-     * return Json for client side DataTables
-     *
-     * @param String $tableName
-     * @return array
-     */
-    public function dbToJson(string $tableName)
-    {
-
-        $myDatas = TableViewController::get($tableName)->toArray();
-
-        if(!$myDatas){
-            return [];
-        }
-
-        $response['recordsTotal'] = count($myDatas);
-        $response['data'] = $myDatas;
-
-        return $response;
-    }
 
 
 

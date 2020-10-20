@@ -1,14 +1,8 @@
 jQuery(document).ready(function($){
 
-    // limit for automatically switch to serverSide
-    const limitRowsForClient = 5;
-
-    // for switch client or serverSide DataTable
-    let server = false;
-
-
-    // check if the client don't call table of getBalance
     if(refMap != 'null' && table != 'null'){
+
+        console.log(refMap);
 
         const references = refMap.replace('[', '').replace(']', '');
         const refColumns = references.split(',');
@@ -23,23 +17,16 @@ jQuery(document).ready(function($){
             }
         });
 
-        // Ajax for have count of db table and determine client or server side
         $.ajax({
-            url: '/api/collection/sandra/baster/get/f',
+            url: '/api/collection/'+db+'/'+env+'/get/'+table,
             type: 'get',
             beforeSend:function(){
                 $('.spinner-grow').show();
             },
             success: function(response){
                 $('.spinner-grow').hide()
-                // if count(response) bigger than limit, table switch on server side
-                if(response > limitRowsForClient){
-                    ajaxServerSide();
-                    server = true;
-                }else{
-                    ajaxClientSide();
-                    server = false;
-                }
+                ajaxServerSide()
+                changeView()
             },
             error: function (jqXHR, exception){
 
@@ -63,53 +50,42 @@ jQuery(document).ready(function($){
         })
 
 
-        // Manually switch client or server side
-        $('.switchTables').on('click', (e)=>{
-
-            const buttonId = $(e.currentTarget).attr('id');
-
-            if(buttonId == 'serverSide' && server === false){
-                createNewTable();
-                ajaxServerSide();
-                server = true;
-
-            }else if(buttonId == 'clientSide' && server === true){
-                createNewTable();
-                ajaxClientSide();
-                server = false;
-            }
-        })
-
-
-        // reinitialize the <table> for creating a new
-        function createNewTable(){
-            $('#factoryTable').remove();
-            $('#tableContainer').html('<table class="text-light table table-dark" id="factoryTable"><thead></thead><tbody></tbody></table>');
-        }
-
-        // switch to server side
         function ajaxServerSide(){
 
-            $('#factoryTable').DataTable({
+            $table = $('#factoryTable');
+
+            $table.DataTable({
                 processing: true,
                 serverSide: true,
                 paging: true,
-                ajax: '/api/collection/'+db+'/'+env+'/get/' + table,
+                ajax: '/api/collection/'+db+'/'+env+'/get/'+table,
                 columns: columnsArray,
             })
+
         }
 
-        // switch to client side
-        function ajaxClientSide(){
 
-            $('#factoryTable').DataTable({
-                ajax: '/dbToJson/' + table,
-                columns: columnsArray,
+        function changeView(){
+
+            $table = $('#factoryTable');
+            $filter = $('#factoryTable_filter');
+            $paginate = $('#factoryTable_paginate');
+
+            $array = [
+                $table,
+                $filter,
+                $paginate,
+            ];
+
+            $.each($array, function(index, id){
+                id.addClass('container')
+                id.parent().parent().addClass('container-fluid')
             })
         }
 
 
     }
+
 
 
 
