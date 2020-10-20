@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use CsCannon\AssetCollectionFactory;
 use CsCannon\SandraManager;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
 use SandraCore\System;
 use Yajra\DataTables\Facades\DataTables;
 use CsCannon\AssetFactory;
@@ -31,10 +29,10 @@ class CollectionController extends Controller
         $columns = TableViewController::getColumns(self::$sandra,$table);
 
         return view('test.index', [
-            'refMap'        => $columns,
-            'table'         => $table,
-             'db'           => $db,
-             'env'          => $env
+            'refMap'    => $columns,
+            'table'     => $table,
+             'db'       => $db,
+             'env'      => $env
         ]);
 
     }
@@ -69,71 +67,6 @@ class CollectionController extends Controller
 
         return $this->viewFromObject($db, $env, $assetFactory);
 
-    }
-
-
-    public function htmlTableView(Request $request)
-    {
-        $datas = $request->all();
-
-        // Check the form
-        $validator = Validator::make($datas, [
-            'address'       => 'required|max:255',
-            'blockchain'    => 'required',
-            'function'      => 'required'
-        ]);
-
-        $errors = $validator->messages();
-
-        if($validator->fails()){
-
-            return view('blockchain/index', [
-                'howToTest'     => $request->input('howToTest'),
-                'blockchains'   => BlockchainController::getBlockchains()
-            ])
-            ->withErrors($errors);
-        }
-
-        $function = $request->input('function');
-        $address = $request->input('address');
-        $net = str_replace(' ', '_', $request->input('net'));
-        $howToTest = $request->input('howToTest');
-
-        return view('collection/collection_display', [
-            'function'      => $function,
-            'address'       => $address,
-            'net'           => $net,
-            'howToTest'     => $howToTest
-        ]);
-    }
-
-
-    /**
-     * count number of rows on db table
-     *
-     * @param String $table
-     * @return Int|false
-     */
-    public function countDatas(string $table)
-    {
-        return TableViewController::countTable($table);
-    }
-
-
-    /**
-     * Ajax from DataTables with db view
-     *
-     * @param String $table
-     * @return \Yajra\DataTables\Facades\DataTables
-     */
-    public function tableAjax(string $table)
-    {
-
-        $datas = TableViewController::get($table);
-
-        return DataTables::of($datas)
-            ->addIndexColumn()
-            ->make(true);
     }
 
 

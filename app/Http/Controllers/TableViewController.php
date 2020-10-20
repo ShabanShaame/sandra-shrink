@@ -25,25 +25,6 @@ class TableViewController extends Controller
     }
 
 
-    /**
-     * @param string $table
-     * @return bool|int
-     */
-    public static function countTable(string $table)
-    {
-
-        $tableExists = self::checkExists($table);
-
-        if($tableExists){
-
-            return DB::table(self::getTableName($table))
-                ->count();
-        }
-
-        return $tableExists;
-
-    }
-
 
     /**
      * @param System $sandra
