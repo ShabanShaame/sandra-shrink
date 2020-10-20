@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use CsCannon\AssetCollectionFactory;
-use CsCannon\SandraManager;
-use SandraCore\System;
 use Yajra\DataTables\Facades\DataTables;
 use CsCannon\AssetFactory;
 use ReflectionClass;
@@ -79,13 +77,9 @@ class CollectionController extends Controller
     public function createEntityAndViewTable(string $entity)
     {
 
-        $sandra = new System('', true, env('DB_HOST').':'.env('DB_PORT'), env('DB_SANDRA'), env('DB_USERNAME'), env('DB_PASSWORD'));
-        SandraManager::setSandra($sandra);
-
         $namespace = "CsCannon'";
         $string = addslashes($namespace) . $entity;
         $factory = str_replace("'", "", $string);
-
 
         if(is_subclass_of($factory, 'SandraCore\EntityFactory')){
 

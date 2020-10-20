@@ -36,7 +36,6 @@ jQuery(document).ready(function($){
 
         }
 
-
         function changeView(){
 
             $table = $('#factoryTable');
@@ -55,8 +54,6 @@ jQuery(document).ready(function($){
             })
         }
 
-
     }
-
 
 })
